@@ -1,3 +1,4 @@
+using AspNetCoreRateLimit;
 using Dogs.API.Config;
 using Dogs.API.Seed;
 using Dogs.Application.Interfaces;
@@ -40,6 +41,8 @@ namespace Dogs.API
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseIpRateLimiting();
 
             app.UseHttpsRedirection();
 
