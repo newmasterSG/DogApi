@@ -43,6 +43,14 @@ namespace Dogs.Infrastructure.Repository
             return await _dbContext.Set<DogEntity>().FirstOrDefaultAsync(item => item.Id == id);
         }
 
+        public async Task<IEnumerable<DogEntity>> TakeAsync(int skipElements, int takeElements)
+        {
+            return await _dbContext.Set<DogEntity>()
+               .Skip(skipElements)
+               .Take(takeElements)
+               .ToListAsync();
+        }
+
         public void Update(DogEntity entity)
         {
             _dbContext.Entry(entity).State = EntityState.Modified;

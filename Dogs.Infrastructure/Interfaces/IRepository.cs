@@ -17,5 +17,7 @@ namespace Dogs.Infrastructure.Interfaces
         void Update(TEntity entity);
 
         Task<ICollection<TEntity>> GetAllAsync();
+
+        Task<IEnumerable<TEntity>> TakeAsync(int skipElements, int takeElements);
     }
 }

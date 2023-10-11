@@ -2,6 +2,7 @@
 using Dogs.Application.Interfaces;
 using Dogs.Domain.Entity;
 using Dogs.Infrastructure.Interfaces;
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -43,43 +44,17 @@ namespace Dogs.Application.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<List<DogDTO>> GetAllDogs(string attribute = "", string order = "asc")
+        public async Task<List<DogDTO>> GetAllDogsAsync(int pageNumber, int pageSize, string attribute = "", string order = "asc")
         {
-            var dogsDb = await _unitOfWork.GetRepository<DogEntity>().GetAllAsync();
+            // Calculate the number of elements to skip based on the page number and page size
+            int skipElements = (pageNumber - 1) * pageSize;
+
+            var dogsDb = await _unitOfWork.GetRepository<DogEntity>().TakeAsync(skipElements, pageSize);
             List<DogDTO> dogs = new List<DogDTO>();
 
             if(dogsDb.Any())
             {
-                Expression<Func<DogEntity, object>> orderByExpression = null;
-
-                switch (attribute.ToLower())
-                {
-                    case "color":
-                        orderByExpression = dog => dog.Color;
-                        break;
-                    case "name":
-                        orderByExpression = dog => dog.Name;
-                        break;
-                    case "taillength":
-                        orderByExpression = dog => dog.TailLength;
-                        break;
-                    case "weight":
-                        orderByExpression = dog => dog.Weight;
-                        break;
-                    default:
-                        orderByExpression = dog => dog.Name;
-                        break;
-                }
-
-
-                if (order.ToLower() == "desc")
-                {
-                    dogsDb = dogsDb.AsQueryable().OrderByDescending(orderByExpression).ToList();
-                }
-                else
-                {
-                    dogsDb = dogsDb.AsQueryable().OrderBy(orderByExpression).ToList();
-                }
+                dogsDb = OrderingDogs(dogsDb, attribute, order);
 
                 foreach (var item in dogsDb)
                 {
@@ -103,6 +78,42 @@ namespace Dogs.Application.Services
             var dbDog = dogRep.GetByName(name);
 
             return dbDog;
+        }
+
+        private IEnumerable<DogEntity> OrderingDogs(IEnumerable<DogEntity> dogs,string attribute, string order)
+        {
+            Expression<Func<DogEntity, object>> orderByExpression = null;
+
+            switch (attribute.ToLower())
+            {
+                case "color":
+                    orderByExpression = dog => dog.Color;
+                    break;
+                case "name":
+                    orderByExpression = dog => dog.Name;
+                    break;
+                case "taillength":
+                    orderByExpression = dog => dog.TailLength;
+                    break;
+                case "weight":
+                    orderByExpression = dog => dog.Weight;
+                    break;
+                default:
+                    orderByExpression = dog => dog.Name;
+                    break;
+            }
+
+
+            if (order.ToLower() == "desc")
+            {
+                dogs = dogs.AsQueryable().OrderByDescending(orderByExpression).ToList();
+            }
+            else
+            {
+                dogs = dogs.AsQueryable().OrderBy(orderByExpression).ToList();
+            }
+
+            return dogs;
         }
 
     }
