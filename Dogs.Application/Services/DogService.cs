@@ -2,6 +2,8 @@
 using Dogs.Application.Interfaces;
 using Dogs.Domain.Entity;
 using Dogs.Infrastructure.Interfaces;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace Dogs.Application.Services
 {
@@ -41,14 +43,45 @@ namespace Dogs.Application.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<List<DogDTO>> GetAllDogs()
+        public async Task<List<DogDTO>> GetAllDogs(string attribute = "", string order = "asc")
         {
             var dogsDb = await _unitOfWork.GetRepository<DogEntity>().GetAllAsync();
             List<DogDTO> dogs = new List<DogDTO>();
 
             if(dogsDb.Any())
             {
-               foreach (var item in dogsDb)
+                Expression<Func<DogEntity, object>> orderByExpression = null;
+
+                switch (attribute.ToLower())
+                {
+                    case "color":
+                        orderByExpression = dog => dog.Color;
+                        break;
+                    case "name":
+                        orderByExpression = dog => dog.Name;
+                        break;
+                    case "taillength":
+                        orderByExpression = dog => dog.TailLength;
+                        break;
+                    case "weight":
+                        orderByExpression = dog => dog.Weight;
+                        break;
+                    default:
+                        orderByExpression = dog => dog.Name;
+                        break;
+                }
+
+
+                if (order.ToLower() == "desc")
+                {
+                    dogsDb = dogsDb.AsQueryable().OrderByDescending(orderByExpression).ToList();
+                }
+                else
+                {
+                    dogsDb = dogsDb.AsQueryable().OrderBy(orderByExpression).ToList();
+                }
+
+                foreach (var item in dogsDb)
                 {
                     dogs.Add(new DogDTO
                     {

@@ -17,9 +17,9 @@ namespace Dogs.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<DogDTO>>> GetAllDogs()
+        public async Task<ActionResult<List<DogDTO>>> GetAllDogs(string attribute = "", string order = "asc")
         {
-            var dogs = await _dogService.GetAllDogs();
+            var dogs = await _dogService.GetAllDogs(attribute, order);
 
             return new JsonResult(dogs);
         }
