@@ -46,6 +46,7 @@ namespace Dogs.Infrastructure.Repository
         public async Task<IEnumerable<DogEntity>> TakeAsync(int skipElements, int takeElements)
         {
             return await _dbContext.Set<DogEntity>()
+               .AsNoTracking()
                .Skip(skipElements)
                .Take(takeElements)
                .ToListAsync();
