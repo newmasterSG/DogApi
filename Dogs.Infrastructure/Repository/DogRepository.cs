@@ -33,14 +33,24 @@ namespace Dogs.Infrastructure.Repository
             return await _dbContext.Set<DogEntity>().ToListAsync();
         }
 
-        public DogEntity GetByName(string name)
+        public async Task<DogEntity> GetByName(string name)
         {
-            return _dbContext.Set<DogEntity>().Where(item => item.Name.Equals(name)).FirstOrDefault();
+            return await _dbContext.Set<DogEntity>().
+                Where(item => item.Name.Equals(name)).
+                FirstOrDefaultAsync();
         }
 
         public async Task<DogEntity> GetEntityAsync(int id)
         {
             return await _dbContext.Set<DogEntity>().FirstOrDefaultAsync(item => item.Id == id);
+        }
+
+        public async Task<DogEntity> NoTracingWithName(string name)
+        {
+            return await _dbContext.Set<DogEntity>().
+                AsNoTracking().
+                Where(item => item.Name.Equals(name)).
+                FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<DogEntity>> TakeAsync(int skipElements, int takeElements)

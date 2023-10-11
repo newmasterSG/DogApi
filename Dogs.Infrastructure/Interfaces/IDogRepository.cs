@@ -10,6 +10,8 @@ namespace Dogs.Infrastructure.Interfaces
     public interface IDogRepository : 
         IRepository<DogEntity>
     {
-        DogEntity GetByName(string name);
+        Task<DogEntity> GetByName(string name);
+
+        Task<DogEntity> NoTracingWithName(string name);
     }
 }

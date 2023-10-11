@@ -27,12 +27,22 @@ namespace Dogs.API.Controllers
         [HttpPost]
         public async Task<ActionResult> AddDog([FromBody] DogDTO dog)
         {
-            if(dog != null)
+            if (ModelState.IsValid)
             {
-                await _dogService.AddSync(dog);
-                var dbDog = await _dogService.GetDogByName(dog.Name);
-                var url = Url.Action(nameof(AddDog), new {id = dbDog.Id}) ?? $"/{dbDog.Id}";
-                return Created(url, dog);
+                if (dog != null)
+                {
+                    var existingDog = await _dogService.GetDogByName(dog.Name);
+
+                    if (existingDog != null)
+                    {
+                        return Conflict("The dog with that name already exists in the database.");
+                    }
+
+                    await _dogService.AddSync(dog);
+                    var dbDog = await _dogService.GetDogByName(dog.Name);
+                    var url = Url.Action(nameof(AddDog), new { id = dbDog.Id }) ?? $"/{dbDog.Id}";
+                    return Created(url, dog);
+                }
             }
 
             return BadRequest();

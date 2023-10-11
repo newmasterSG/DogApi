@@ -5,6 +5,7 @@ using Dogs.Infrastructure.Interfaces;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Xml.Linq;
 
 namespace Dogs.Application.Services
 {
@@ -75,7 +76,7 @@ namespace Dogs.Application.Services
         {
             var dogRep = _unitOfWork.GetRepository<DogEntity>() as IDogRepository;
 
-            var dbDog = dogRep.GetByName(name);
+            var dbDog = await dogRep.NoTracingWithName(name);
 
             return dbDog;
         }
