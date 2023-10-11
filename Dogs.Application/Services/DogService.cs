@@ -14,9 +14,17 @@ namespace Dogs.Application.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task AddSync(DogEntity dog)
+        public async Task AddSync(DogDTO dog)
         {
-            await _unitOfWork.GetRepository<DogEntity>().AddAsync(dog);
+            var dogDb = new DogEntity
+            {
+                Name = dog.Name,
+                Color = dog.Color,
+                TailLength = dog.TailLength,
+                Weight = dog.Weight,
+            };
+
+            await _unitOfWork.GetRepository<DogEntity>().AddAsync(dogDb);
             await _unitOfWork.SaveChangesAsync();
         }
 
@@ -53,6 +61,15 @@ namespace Dogs.Application.Services
             }
 
             return dogs;
+        }
+
+        public async Task<DogEntity> GetDogByName(string name)
+        {
+            var dogRep = _unitOfWork.GetRepository<DogEntity>() as IDogRepository;
+
+            var dbDog = dogRep.GetByName(name);
+
+            return dbDog;
         }
 
     }
