@@ -22,13 +22,13 @@ namespace MockUnitTest.Services
                     new DogEntity { Id = 1, Name = "Fido", Color = "Brown", TailLength = 10, Weight = 50 },
                 }
             };
-            yield return new object[] 
-            { 
+            yield return new object[]
+            {
                 1, 20, "name", "desc", new List<DogEntity>
                 {
                     new DogEntity { Id = 3, Name = "Max", Color = "White", TailLength = 8, Weight = 45 }
                 }
-            }
+            };
             yield return new object[] { 3, 30, "color", "asc", new List<DogEntity> { } };
         }
 
