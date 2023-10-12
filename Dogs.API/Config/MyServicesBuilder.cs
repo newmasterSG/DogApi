@@ -36,7 +36,7 @@ namespace Dogs.API.Config
                     new RateLimitRule
                     {
                         Endpoint = "*",
-                        Period = "10s",
+                        Period = "1s",
                         Limit = 10
                     }
                 };
