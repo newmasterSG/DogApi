@@ -1,4 +1,5 @@
-﻿using Dogs.Application.Services;
+﻿using Dogs.Application.DTO;
+using Dogs.Application.Services;
 using Dogs.Domain.Entity;
 using Dogs.Infrastructure.Interfaces;
 using Moq;
@@ -12,7 +13,33 @@ namespace MockUnitTest.Services
 {
     public class DogServiceTests
     {
+        #region DataForTest
         public static IEnumerable<object[]> DogData()
+        {
+            yield return new object[]
+            {
+                new DogDTO
+                {
+                    Name = "Buddy",
+                    Color = "Brown",
+                    TailLength = 12,
+                    Weight = 60
+                }
+            };
+
+            yield return new object[]
+            {
+                new DogDTO
+                {
+                    Name = "Max",
+                    Color = "Black",
+                    TailLength = 8,
+                    Weight = 45
+                }
+            };
+        }
+
+        public static IEnumerable<object[]> DogsData()
         {
             yield return new object[] 
             { 
@@ -31,6 +58,8 @@ namespace MockUnitTest.Services
             };
             yield return new object[] { 3, 30, "color", "asc", new List<DogEntity> { } };
         }
+
+        #endregion
 
         [Theory]
         [InlineData(1, "Fido", "Brown", 10, 50)]
@@ -62,7 +91,7 @@ namespace MockUnitTest.Services
         }
 
         [Theory]
-        [MemberData(nameof(DogData))]
+        [MemberData(nameof(DogsData))]
         public async Task GetAllDogsAsync_ShouldReturnDogs(
         int pageNumber, int pageSize, string attribute, string order, List<DogEntity> expectedDogs)
         {
@@ -90,6 +119,27 @@ namespace MockUnitTest.Services
                 Assert.Equal(expectedDogs[i].TailLength, result[i].TailLength);
                 Assert.Equal(expectedDogs[i].Weight, result[i].Weight);
             }
+        }
+
+        [Theory]
+        [MemberData(nameof(DogData))]
+        public async Task AddSync_ShouldAddDog(DogDTO dogToAdd)
+        {
+            // Arrange
+            var unitOfWorkMock = MockFactory.CreateUnitOfWorkMock();
+            var dogRepositoryMock = MockFactory.CreateDogRepositoryMock();
+
+            unitOfWorkMock.Setup(uow => uow.GetRepository<DogEntity>()).Returns(dogRepositoryMock.Object);
+
+            var dogService = new DogService(unitOfWorkMock.Object);
+
+            // Act
+            await dogService.AddSync(dogToAdd);
+
+            // Assert
+            dogRepositoryMock.Verify(repo => repo.AddAsync(It.IsAny<DogEntity>()), Times.Once);
+
+            unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
         }
     }
 }
