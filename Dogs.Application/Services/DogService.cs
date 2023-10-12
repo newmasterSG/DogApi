@@ -67,8 +67,6 @@ namespace Dogs.Application.Services
                 {
                     return true;
                 }
-
-                return false;
             }
 
             return false;

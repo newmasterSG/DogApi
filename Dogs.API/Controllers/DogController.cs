@@ -83,7 +83,7 @@ namespace Dogs.API.Controllers
 
         [HttpPatch("{id}")]
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateAsync(int id,[FromBody] DogDTO patchDoc)
+        public async Task<ActionResult> UpdateAsync(int id, [FromBody] DogDTO patchDoc)
         {
             if (patchDoc == null)
             {

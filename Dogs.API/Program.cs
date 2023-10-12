@@ -1,16 +1,8 @@
 using AspNetCoreRateLimit;
 using Dogs.API.Config;
 using Dogs.API.Seed;
-using Dogs.Application.Interfaces;
-using Dogs.Application.Services;
-using Dogs.Domain.Entity;
 using Dogs.Infrastructure.Context;
-using Dogs.Infrastructure.Interfaces;
-using Dogs.Infrastructure.Repository;
-using Dogs.Infrastructure.UnitOfWork;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace Dogs.API
 {
