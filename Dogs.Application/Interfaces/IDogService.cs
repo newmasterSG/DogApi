@@ -6,9 +6,10 @@ namespace Dogs.Application.Interfaces
     public interface IDogService
     {
         Task AddSync(DogDTO dog);
-        Task DeleteAsync(int id);
+        Task<bool> DeleteAsync(int id);
         Task<List<DogDTO>> GetAllDogsAsync(int pageNumber, int pageSize, string attribute = "", string order = "asc");
-        Task UpdateAsync(DogEntity dog);
-        Task<DogEntity> GetDogByName(string name);
+        Task UpdateAsync(int id, DogDTO dTO);
+        Task<DogEntity> GetDogByNameAsync(string name);
+        Task<DogDTO> GetDogByIdAsync(int id);
     }
 }

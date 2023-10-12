@@ -33,6 +33,11 @@ namespace Dogs.Infrastructure.Attributes
             }
             else
             {
+                if(double.TryParse(value.ToString(), out _))
+                {
+                    value.ToString();
+                }
+
                 return new ValidationResult($"The value '{value}' is not allowed for this property.");
             }
         }

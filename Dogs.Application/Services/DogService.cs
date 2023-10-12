@@ -18,6 +18,25 @@ namespace Dogs.Application.Services
             _unitOfWork = unitOfWork;
         }
 
+        public async Task<DogDTO> GetDogByIdAsync(int id)
+        {
+            var dogDb = await _unitOfWork.GetRepository<DogEntity>().GetEntityAsync(id);
+
+            var dog = new DogDTO();
+
+            if(dogDb != null)
+            {
+                dog.Name = dogDb.Name;
+                dog.TailLength = dogDb.TailLength;
+                dog.Color = dogDb.Color;
+                dog.Weight = dogDb.Weight;
+
+                return dog;
+            }
+
+            return default;
+        }
+
         public async Task AddSync(DogDTO dog)
         {
             var dogDb = new DogEntity
@@ -32,17 +51,47 @@ namespace Dogs.Application.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
             var dog = await _unitOfWork.GetRepository<DogEntity>().GetEntityAsync(id);
-            _unitOfWork.GetRepository<DogEntity>().Delete(dog);
-            await _unitOfWork.SaveChangesAsync();
+
+            if(dog != null)
+            {
+                _unitOfWork.GetRepository<DogEntity>().Delete(dog);
+
+                await _unitOfWork.SaveChangesAsync();
+
+                dog = await _unitOfWork.GetRepository<DogEntity>().GetEntityAsync(id);
+
+                if(dog == null)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            return false;
         }
 
-        public async Task UpdateAsync(DogEntity dog)
+        public async Task UpdateAsync(int id, DogDTO dTO)
         {
-            _unitOfWork.GetRepository<DogEntity>().Update(dog);
-            await _unitOfWork.SaveChangesAsync();
+            var dog = await _unitOfWork.GetRepository<DogEntity>().GetEntityAsync(id);
+
+            if(dog != null)
+            {
+                dog.Color = dTO.Color;
+                dog.Name = dTO.Name;
+                dog.Color = dTO.Color;
+                dog.TailLength = dTO.TailLength;
+                dog.Weight = dTO.Weight;
+
+                _unitOfWork.GetRepository<DogEntity>().Update(dog);
+
+                await _unitOfWork.SaveChangesAsync();
+            }
+
+            await Task.CompletedTask;
         }
 
         public async Task<List<DogDTO>> GetAllDogsAsync(int pageNumber, int pageSize, string attribute = "", string order = "asc")
@@ -72,7 +121,7 @@ namespace Dogs.Application.Services
             return dogs;
         }
 
-        public async Task<DogEntity> GetDogByName(string name)
+        public async Task<DogEntity> GetDogByNameAsync(string name)
         {
             var dogRep = _unitOfWork.GetRepository<DogEntity>() as IDogRepository;
 

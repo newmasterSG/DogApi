@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Dogs.Infrastructure.Attributes
 {
-    public class DisallowValuesRule : IValidationRule
+    public class NumberValuesRule : IValidationRule
     {
-        private readonly string[] _disallowedValues;
+        private readonly int[] _disallowedValues;
 
-        public DisallowValuesRule(params string[] disallowedValues)
+        public NumberValuesRule(params int[] disallowedValues)
         {
             _disallowedValues = disallowedValues;
         }
@@ -20,10 +20,9 @@ namespace Dogs.Infrastructure.Attributes
         {
             if (value != null)
             {
-                string strValue = value.ToString();
-                foreach (var disallowedValue in _disallowedValues)
+                if(double.TryParse(value.ToString(), out double numericValue))
                 {
-                    if (string.Equals(strValue, disallowedValue, StringComparison.OrdinalIgnoreCase))
+                    if (numericValue <= 0)
                     {
                         return false;
                     }
