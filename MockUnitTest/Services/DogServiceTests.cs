@@ -1,7 +1,10 @@
 ﻿using Dogs.Application.DTO;
 using Dogs.Application.Services;
 using Dogs.Domain.Entity;
+using Dogs.Infrastructure.Context;
 using Dogs.Infrastructure.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -140,6 +143,89 @@ namespace MockUnitTest.Services
             dogRepositoryMock.Verify(repo => repo.AddAsync(It.IsAny<DogEntity>()), Times.Once);
 
             unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(), Times.Once);
+        }
+
+        [Theory]
+        [InlineData(1, true)]
+        [InlineData(2, false)]
+        public async Task DeleteAsync_ShouldDeleteDog(int dogId, bool expectedResult)
+        {
+            // Arrange
+            var unitOfWorkMock = MockFactory.CreateUnitOfWorkMock();
+            var dogRepositoryMock = MockFactory.CreateDogRepositoryMock();
+
+            unitOfWorkMock.Setup(uow => uow.GetRepository<DogEntity>()).Returns(dogRepositoryMock.Object);
+
+            var dogToDelete = new DogEntity
+            {
+                Id = dogId,
+                Name = "Buddy",
+                Color = "Brown",
+                TailLength = 12,
+                Weight = 60
+            };
+
+            dogRepositoryMock.Setup(repo => repo.GetEntityAsync(dogId)).ReturnsAsync(dogToDelete);
+            dogRepositoryMock.Setup(repo => repo.Delete(It.IsAny<DogEntity>())).Callback((DogEntity deletedDog) =>
+            {
+                dogRepositoryMock.Setup(repo => repo.GetEntityAsync(It.IsAny<int>()))
+                   .ReturnsAsync((int id) => null);
+            });
+
+
+            unitOfWorkMock.Setup(uow => uow.SaveChangesAsync()).Returns(Task.CompletedTask);
+
+            var dogService = new DogService(unitOfWorkMock.Object);
+
+            // Act
+            var result = await dogService.DeleteAsync(1);
+
+            // Assert
+            Assert.Equal(expectedResult, result);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        public async Task UpdateAsync_ShouldUpdateDog(int dogId)
+        {
+            // Arrange
+            var unitOfWorkMock = MockFactory.CreateUnitOfWorkMock();
+            var dogRepositoryMock = MockFactory.CreateDogRepositoryMock();
+
+            unitOfWorkMock.Setup(uow => uow.GetRepository<DogEntity>()).Returns(dogRepositoryMock.Object);
+
+            var dogToUpdate = new DogEntity
+            {
+                Id = dogId,
+                Name = "Fido",
+                Color = "Brown",
+                TailLength = 10,
+                Weight = 50
+            };
+
+            var updatedDog = new DogDTO
+            {
+                Name = "Max",
+                Color = "Black",
+                TailLength = 8,
+                Weight = 45
+            };
+
+            dogRepositoryMock.Setup(repo => repo.GetEntityAsync(dogId)).ReturnsAsync(dogToUpdate);
+
+            unitOfWorkMock.Setup(uow => uow.SaveChangesAsync()).Returns(Task.CompletedTask);
+
+            var dogService = new DogService(unitOfWorkMock.Object);
+
+            // Act
+            await dogService.UpdateAsync(dogId, updatedDog);
+
+            // Assert
+            Assert.Equal(updatedDog.Name, dogToUpdate.Name);
+            Assert.Equal(updatedDog.Color, dogToUpdate.Color);
+            Assert.Equal(updatedDog.TailLength, dogToUpdate.TailLength);
+            Assert.Equal(updatedDog.Weight, dogToUpdate.Weight);
         }
     }
 }
