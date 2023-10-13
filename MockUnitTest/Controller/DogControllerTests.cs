@@ -105,8 +105,20 @@ namespace MockUnitTest.Controller
                                         .ReturnsAsync(dogAdded);
                         });
 
+            var mockUrlHelper = new Mock<IUrlHelper>(MockBehavior.Strict);
+            mockUrlHelper
+                .Setup(
+                    x => x.Action(
+                        It.IsAny<UrlActionContext>()
+                    )
+                )
+                .Returns("callbackUrl")
+                .Verifiable();
 
+            
             var controller = new DogController(dogServiceMock.Object);
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            controller.Url = mockUrlHelper.Object;
 
             // Act
             var result = await controller.AddDogAsync(dogToAdd);
