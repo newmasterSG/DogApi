@@ -128,5 +128,119 @@ namespace MockUnitTest.Controller
             var model = Assert.IsType<DogDTO>(createdResult.Value);
             Assert.Equal(dogToAdd.Name, model.Name);
         }
+
+        [Theory]
+        [InlineData(1)]
+        public async Task DeleteAsync_ValidId_ReturnsOk(int id)
+        {
+            var dogServiceMock = new Mock<IDogService>();
+            dogServiceMock.Setup(service => service.DeleteAsync(id)).ReturnsAsync(true);
+            var controller = new DogController(dogServiceMock.Object);
+
+            // Act
+            var result = await controller.DeleteAsync(id);
+
+            // Assert
+            var okResult = Assert.IsType<OkResult>(result);
+            Assert.Equal(200, okResult.StatusCode);
+        }
+
+        [Theory]
+        [InlineData(-1)]
+        public async Task DeleteAsync_InvalidId_ReturnsBadRequest(int id)
+        {
+            // Arrange
+            var dogServiceMock = new Mock<IDogService>();
+            dogServiceMock.Setup(service => service.DeleteAsync(id)).ReturnsAsync(false);
+            var controller = new DogController(dogServiceMock.Object);
+
+            // Act
+            var result = await controller.DeleteAsync(id);
+
+            // Assert
+            var badRequestResult = Assert.IsType<BadRequestResult>(result);
+            Assert.Equal(400, badRequestResult.StatusCode);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        public async Task UpdateAsync_ValidRequest_ReturnsNoContent(int id)
+        {
+            // Arrange
+            var patchDoc = new DogDTO();
+            var dogServiceMock = new Mock<IDogService>();
+            dogServiceMock.Setup(service => service.GetDogByIdAsync(id)).ReturnsAsync(new DogDTO());
+            dogServiceMock.Setup(service => service.UpdateAsync(id, patchDoc)).Returns(Task.CompletedTask);
+            var controller = new DogController(dogServiceMock.Object);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext { Request = { Method = "PATCH" } }
+            };
+
+            // Act
+            var result = await controller.UpdateAsync(id, patchDoc);
+
+            // Assert
+            var noContentResult = Assert.IsType<NoContentResult>(result);
+            Assert.Equal(StatusCodes.Status204NoContent, noContentResult.StatusCode);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        public async Task UpdateAsync_InvalidPatchDoc_ReturnsBadRequest(int id)
+        {
+            // Arrange
+            DogDTO patchDoc = null; 
+            var controller = new DogController(Mock.Of<IDogService>()); 
+
+            // Act
+            var result = await controller.UpdateAsync(id, patchDoc);
+
+            // Assert
+            var badRequestResult = Assert.IsType<BadRequestResult>(result);
+            Assert.Equal(StatusCodes.Status400BadRequest, badRequestResult.StatusCode);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        public async Task UpdateAsync_DogNotFound_ReturnsNotFound(int id)
+        {
+            // Arrange
+            var patchDoc = new DogDTO();
+            var dogServiceMock = new Mock<IDogService>();
+            dogServiceMock.Setup(service => service.GetDogByIdAsync(id)).ReturnsAsync((DogDTO)null);
+            var controller = new DogController(dogServiceMock.Object);
+
+            // Act
+            var result = await controller.UpdateAsync(id, patchDoc);
+
+            // Assert
+            var notFoundResult = Assert.IsType<NotFoundResult>(result);
+            Assert.Equal(StatusCodes.Status404NotFound, notFoundResult.StatusCode);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        public async Task UpdateAsync_PutMethod_ValidRequest_ReturnsOk(int id)
+        {
+            // Arrange
+            var patchDoc = new DogDTO();
+            var dogServiceMock = new Mock<IDogService>();
+            dogServiceMock.Setup(service => service.GetDogByIdAsync(id)).ReturnsAsync(new DogDTO());
+            dogServiceMock.Setup(service => service.UpdateAsync(id, patchDoc)).Returns(Task.CompletedTask);
+            var controller = new DogController(dogServiceMock.Object);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext { Request = { Method = "PUT" } }
+            };
+
+            // Act
+            var result = await controller.UpdateAsync(id, patchDoc);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
+            Assert.Equal(patchDoc, okResult.Value);
+        }
     }
 }
