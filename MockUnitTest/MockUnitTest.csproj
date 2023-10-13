@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Dogs.API\Dogs.API.csproj" />
     <ProjectReference Include="..\Dogs.Application\Dogs.Application.csproj" />
     <ProjectReference Include="..\Dogs.Infrastructure\Dogs.Infrastructure.csproj" />
   </ItemGroup>

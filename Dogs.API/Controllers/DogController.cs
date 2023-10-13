@@ -55,9 +55,8 @@ namespace Dogs.API.Controllers
                 }
 
                 await _dogService.AddSync(dog);
-                var dbDog = await _dogService.GetDogByNameAsync(dog.Name);
-                var url = Url.Action(nameof(AddDogAsync), new { id = dbDog.Id }) ?? $"/{dbDog.Id}";
-                return Created(url, dog);
+
+                return Created(string.Empty, dog);
             }
 
             return BadRequest(ModelState);
