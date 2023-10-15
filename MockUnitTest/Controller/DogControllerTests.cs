@@ -53,7 +53,7 @@ namespace MockUnitTest.Controller
             var controller = new DogController(dogServiceMock.Object);
 
             // Act
-            var result = await controller.GetAllDogsAsync();
+            var result = await controller.GetAllDogs();
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -72,7 +72,7 @@ namespace MockUnitTest.Controller
             var controller = new DogController(dogServiceMock.Object);
 
             // Act
-            var result = await controller.GetDogAsync(1);
+            var result = await controller.GetDog(1);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -121,7 +121,7 @@ namespace MockUnitTest.Controller
             controller.Url = mockUrlHelper.Object;
 
             // Act
-            var result = await controller.AddDogAsync(dogToAdd);
+            var result = await controller.AddDog(dogToAdd);
 
             // Assert
             var createdResult = Assert.IsType<CreatedResult>(result);
@@ -138,7 +138,7 @@ namespace MockUnitTest.Controller
             var controller = new DogController(dogServiceMock.Object);
 
             // Act
-            var result = await controller.DeleteAsync(id);
+            var result = await controller.Delete(id);
 
             // Assert
             var okResult = Assert.IsType<OkResult>(result);
@@ -155,7 +155,7 @@ namespace MockUnitTest.Controller
             var controller = new DogController(dogServiceMock.Object);
 
             // Act
-            var result = await controller.DeleteAsync(id);
+            var result = await controller.Delete(id);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestResult>(result);
@@ -178,7 +178,7 @@ namespace MockUnitTest.Controller
             };
 
             // Act
-            var result = await controller.UpdateAsync(id, patchDoc);
+            var result = await controller.Update(id, patchDoc);
 
             // Assert
             var noContentResult = Assert.IsType<NoContentResult>(result);
@@ -194,7 +194,7 @@ namespace MockUnitTest.Controller
             var controller = new DogController(Mock.Of<IDogService>()); 
 
             // Act
-            var result = await controller.UpdateAsync(id, patchDoc);
+            var result = await controller.Update(id, patchDoc);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestResult>(result);
@@ -212,7 +212,7 @@ namespace MockUnitTest.Controller
             var controller = new DogController(dogServiceMock.Object);
 
             // Act
-            var result = await controller.UpdateAsync(id, patchDoc);
+            var result = await controller.Update(id, patchDoc);
 
             // Assert
             var notFoundResult = Assert.IsType<NotFoundResult>(result);
@@ -235,7 +235,7 @@ namespace MockUnitTest.Controller
             };
 
             // Act
-            var result = await controller.UpdateAsync(id, patchDoc);
+            var result = await controller.Update(id, patchDoc);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);

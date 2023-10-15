@@ -17,7 +17,7 @@ namespace Dogs.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<DogDTO>>> GetAllDogsAsync(string attribute = "name", string order = "asc", int page = 1, int pageSize = 10)
+        public async Task<ActionResult<List<DogDTO>>> GetAllDogs(string attribute = "name", string order = "asc", int page = 1, int pageSize = 10)
         {
             var dogs = await _dogService.GetAllDogsAsync(page, pageSize, attribute, order);
 
@@ -25,7 +25,7 @@ namespace Dogs.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<DogDTO>> GetDogAsync(int id)
+        public async Task<ActionResult<DogDTO>> GetDog(int id)
         {
             if(id <= 0)
             {
@@ -43,7 +43,7 @@ namespace Dogs.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> AddDogAsync([FromBody] DogDTO dog)
+        public async Task<ActionResult> AddDog([FromBody] DogDTO dog)
         {
             if (ModelState.IsValid)
             {
@@ -56,7 +56,7 @@ namespace Dogs.API.Controllers
 
                 await _dogService.AddSync(dog);
                 var dbDog = await _dogService.GetDogByNameAsync(dog.Name);
-                var url = Url.Action(nameof(AddDogAsync), new { id = dbDog.Id }) ?? $"/{dbDog.Id}";
+                var url = Url.Action(nameof(AddDog), new { id = dbDog.Id }) ?? $"/{dbDog.Id}";
                 return Created(url, dog);
             }
 
@@ -64,7 +64,7 @@ namespace Dogs.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteAsync(int id)
+        public async Task<ActionResult> Delete(int id)
         {
             bool isDeleted = await _dogService.DeleteAsync(id);
 
@@ -83,7 +83,7 @@ namespace Dogs.API.Controllers
 
         [HttpPatch("{id}")]
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateAsync(int id, [FromBody] DogDTO patchDoc)
+        public async Task<ActionResult> Update(int id, [FromBody] DogDTO patchDoc)
         {
             if (patchDoc == null)
             {
