@@ -97,39 +97,6 @@ namespace Dogs.Application.Services
             // Calculate the number of elements to skip based on the page number and page size
             int skipElements = (pageNumber - 1) * pageSize;
 
-            var dogsDb = await _unitOfWork.GetRepository<DogEntity>().TakeAsync(skipElements, pageSize);
-            List<DogDTO> dogs = new List<DogDTO>();
-
-            if(dogsDb.Any())
-            {
-                dogsDb = OrderingDogs(dogsDb, attribute, order);
-
-                foreach (var item in dogsDb)
-                {
-                    dogs.Add(new DogDTO
-                    {
-                        Color = item.Color,
-                        Name = item.Name,
-                        TailLength = item.TailLength,
-                        Weight = item.Weight
-                    });
-               }
-            }
-
-            return dogs;
-        }
-
-        public async Task<DogEntity> GetDogByNameAsync(string name)
-        {
-            var dogRep = _unitOfWork.GetRepository<DogEntity>() as IDogRepository;
-
-            var dbDog = await dogRep.NoTracingWithName(name);
-
-            return dbDog;
-        }
-
-        private IEnumerable<DogEntity> OrderingDogs(IEnumerable<DogEntity> dogs,string attribute, string order)
-        {
             Expression<Func<DogEntity, object>> orderByExpression = null;
 
             switch (attribute.ToLower())
@@ -151,17 +118,35 @@ namespace Dogs.Application.Services
                     break;
             }
 
+            bool ordering = order == "asc" ? true : false;
 
-            if (order.ToLower() == "desc")
+            var dogsDb = await _unitOfWork.GetRepository<DogEntity>().TakeAsync(skipElements, pageSize, (orderByExpression, ordering));
+            List<DogDTO> dogs = new List<DogDTO>();
+
+            if(dogsDb.Any())
             {
-                dogs = dogs.AsQueryable().OrderByDescending(orderByExpression).ToList();
-            }
-            else
-            {
-                dogs = dogs.AsQueryable().OrderBy(orderByExpression).ToList();
+                foreach (var item in dogsDb.ToList())
+                {
+                    dogs.Add(new DogDTO
+                    {
+                        Color = item.Color,
+                        Name = item.Name,
+                        TailLength = item.TailLength,
+                        Weight = item.Weight
+                    });
+               }
             }
 
             return dogs;
+        }
+
+        public async Task<DogEntity> GetDogByNameAsync(string name)
+        {
+            var dogRep = _unitOfWork.GetRepository<DogEntity>() as IDogRepository;
+
+            var dbDog = await dogRep.NoTracingWithName(name);
+
+            return dbDog;
         }
 
     }

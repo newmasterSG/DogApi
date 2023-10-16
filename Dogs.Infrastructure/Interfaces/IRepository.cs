@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Dogs.Domain.Entity;
+using System.Linq.Expressions;
 
 namespace Dogs.Infrastructure.Interfaces
 {
@@ -18,6 +15,6 @@ namespace Dogs.Infrastructure.Interfaces
 
         Task<ICollection<TEntity>> GetAllAsync();
 
-        Task<IEnumerable<TEntity>> TakeAsync(int skipElements, int takeElements);
+        Task<IEnumerable<TEntity>> TakeAsync(int skipElements, int takeElements, (Expression<Func<DogEntity, object>> expression, bool ascending) sortOrder);
     }
 }

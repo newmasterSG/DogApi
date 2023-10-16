@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -53,13 +54,22 @@ namespace Dogs.Infrastructure.Repository
                 FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<DogEntity>> TakeAsync(int skipElements, int takeElements)
+        public async Task<IEnumerable<DogEntity>> TakeAsync(int skipElements, int takeElements, (Expression<Func<DogEntity, object>> expression, bool ascending) sortOrder)
         {
-            return await _dbContext.Set<DogEntity>()
-               .AsNoTracking()
-               .Skip(skipElements)
-               .Take(takeElements)
-               .ToListAsync();
+            var query = _dbContext.Set<DogEntity>().AsNoTracking();
+
+            if (sortOrder.ascending)
+            {
+                query = query.OrderBy(sortOrder.expression);
+            }
+            else
+            {
+                query = query.OrderByDescending(sortOrder.expression);
+            }
+
+            return query.Skip(skipElements)
+                .Take(takeElements)
+                .AsEnumerable();
         }
 
         public void Update(DogEntity entity)
