@@ -9,6 +9,7 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -104,8 +105,18 @@ namespace MockUnitTest.Services
 
             unitOfWorkMock.Setup(uow => uow.GetRepository<DogEntity>()).Returns(dogRepositoryMock.Object);
 
-            dogRepositoryMock.Setup(repo => repo.TakeAsync(It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync((int skip, int take) => expectedDogs.Skip(skip).Take(take));
+            dogRepositoryMock.Setup(repo => repo.TakeAsync(
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<(Expression<Func<DogEntity, object>>, bool)>()
+            )).ReturnsAsync((int skip, int take, (Expression<Func<DogEntity, object>> expression, bool ascending) sortOrder) =>
+            {
+                var orderedDogs = sortOrder.ascending
+                    ? expectedDogs.OrderBy(sortOrder.expression.Compile())
+                    : expectedDogs.OrderByDescending(sortOrder.expression.Compile());
+
+                return orderedDogs.Skip(skip).Take(take);
+            });
 
             var dogService = new DogService(unitOfWorkMock.Object);
 
