@@ -15,6 +15,6 @@ namespace Dogs.Infrastructure.Interfaces
 
         Task<ICollection<TEntity>> GetAllAsync();
 
-        Task<IEnumerable<TEntity>> TakeAsync(int skipElements, int takeElements, (Expression<Func<DogEntity, object>> expression, bool ascending) sortOrder);
+        Task<IEnumerable<TEntity>> TakeAsync(int skipElements, int takeElements, (Expression<Func<TEntity, object>> expression, bool ascending) sortOrder);
     }
 }

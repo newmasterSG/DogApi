@@ -54,7 +54,9 @@ namespace Dogs.Infrastructure.Repository
                 FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<DogEntity>> TakeAsync(int skipElements, int takeElements, (Expression<Func<DogEntity, object>> expression, bool ascending) sortOrder)
+        public async Task<IEnumerable<DogEntity>> TakeAsync(int skipElements, 
+            int takeElements, 
+            (Expression<Func<DogEntity, object>> expression, bool ascending) sortOrder)
         {
             var query = _dbContext.Set<DogEntity>().AsNoTracking();
 

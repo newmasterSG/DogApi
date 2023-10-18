@@ -120,7 +120,8 @@ namespace Dogs.Application.Services
 
             bool ordering = order == "asc" ? true : false;
 
-            var dogsDb = await _unitOfWork.GetRepository<DogEntity>().TakeAsync(skipElements, pageSize, (orderByExpression, ordering));
+            var dogsDb = await _unitOfWork.GetRepository<DogEntity>()
+                .TakeAsync(skipElements, pageSize, (orderByExpression, ordering));
             List<DogDTO> dogs = new List<DogDTO>();
 
             if(dogsDb.Any())
